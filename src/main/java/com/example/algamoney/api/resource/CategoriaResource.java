@@ -29,9 +29,14 @@ public class CategoriaResource {
 	/*
 	 * Retorna a lista de categorias 
 	 * @GetMapping --> chamado pelo verbo get
+	 * ResponseEntity<?> --> como retorno nos casos em que é notFound e noContent 
 	 */
 	@GetMapping
 	public List<Categoria> listar() {
-		return categoriaRepository.findAll();
+		List<Categoria> categorias = categoriaRepository.findAll();
+		
+		/* return categorias.isEmpty() != true ? ResponseEntity.ok(categorias) : ResponseEntity.notFound().build(); 404 recurso não identificado */
+		/* return categorias.isEmpty() != true ? ResponseEntity.ok(categorias) : ResponseEntity.noContent().build(); 204 busquei mas não tenho o que te mostrar */
+		return categorias;
 	}
 }
