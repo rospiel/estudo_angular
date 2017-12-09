@@ -79,11 +79,13 @@ public class CategoriaResource {
 	 * @param codigo
 	 * @return
 	 *  
-	 * Método que busca um recurso pelo código
+	 * Método que busca um recurso pelo código, caso não encontre devolve 404
 	 * @PathVariable --> Indica que o parâmetro código receberá o atributo de mesmo nome passado no endereço
 	 */
 	@GetMapping("/{codigo}")
-	public Categoria buscarPeloCodigo(@PathVariable Long codigo) {
-		return categoriaRepository.findOne(codigo);
+	public ResponseEntity<?> buscarPeloCodigo(@PathVariable Long codigo) {
+		Categoria categoriaEncontrada = categoriaRepository.findOne(codigo);
+		
+		return categoriaEncontrada != null ? ResponseEntity.ok(categoriaEncontrada) : ResponseEntity.notFound().build(); 
 	}
 }
