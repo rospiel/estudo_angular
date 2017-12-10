@@ -113,4 +113,18 @@ public class PessoaResource {
 		return ResponseEntity.ok(pessoaAtualizada);
 	}
 	
+	/**
+	 * 
+	 * @param codigo
+	 * @param ativo
+	 * 
+	 * Método de atualização do atributo ativo da pessoa
+	 */
+	@PutMapping("/{codigo}/ativo")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void atualizarAtributoAtivo(@PathVariable Long codigo, @RequestBody Boolean ativo) {
+		pessoaService.atualizarAtributoAtivo(codigo, ativo);
+	}
+	
+	
 }

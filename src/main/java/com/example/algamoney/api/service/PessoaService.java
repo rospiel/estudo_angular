@@ -26,18 +26,43 @@ public class PessoaService {
 	 * @return
 	 * 
 	 * Recepciona o codigo da pessoa que será atualizado e o model Pessoa com as novas informações
-	 * Busca a pessoa no banco, caso não encontre lança código 404 do contrário cópia as informações novas 
-	 * e atualiza no banco
+	 * para salvar no banco
 	 * 
 	 */
 	public Pessoa atualizar(Long codigo, Pessoa pessoa) {
+		Pessoa pessoaBanco = buscarPessoaPeloCodigo(codigo);
+		
+		BeanUtils.copyProperties(pessoa, pessoaBanco, "codigo");
+		return pessoaRepository.save(pessoaBanco);
+	}
+	
+	/**
+	 * 
+	 * @param codigo
+	 * @param ativo
+	 * 
+	 * Método que atualiza o atributo ativo da pessoa
+	 */
+	public void atualizarAtributoAtivo(Long codigo, Boolean ativo) {
+		Pessoa pessoaBanco = buscarPessoaPeloCodigo(codigo);
+		pessoaBanco.setAtivo(ativo);
+		pessoaRepository.save(pessoaBanco);
+	}
+	
+	/**
+	 * 
+	 * @param codigo
+	 * @return
+	 * 
+	 * Busca a pessoa no banco, caso não encontre lança código 404 do contrário cópia as informações novas 
+	 * e devolve o model pessoa atualizado
+	 */
+	private Pessoa buscarPessoaPeloCodigo(Long codigo) {
 		Pessoa pessoaBanco = pessoaRepository.findOne(codigo);
 		
 		if(pessoaBanco == null) {
 			throw new EmptyResultDataAccessException(1);
 		}
-		
-		BeanUtils.copyProperties(pessoa, pessoaBanco, "codigo");
-		return pessoaRepository.save(pessoaBanco);
+		return pessoaBanco;
 	}
 }
