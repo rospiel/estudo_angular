@@ -17,6 +17,8 @@ public class Pessoa {
 	
 	private String nome;
 	
+	private Boolean ativo;
+	
 	@Embedded
 	private Endereco enderecoPessoa;
 
@@ -43,11 +45,20 @@ public class Pessoa {
 	public void setEnderecoPessoa(Endereco enderecoPessoa) {
 		this.enderecoPessoa = enderecoPessoa;
 	}
+	
+	public Boolean getAtivo() {
+		return ativo;
+	}
+
+	public void setAtivo(Boolean ativo) {
+		this.ativo = ativo;
+	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((ativo == null) ? 0 : ativo.hashCode());
 		result = prime * result + ((codigo == null) ? 0 : codigo.hashCode());
 		result = prime * result + ((enderecoPessoa == null) ? 0 : enderecoPessoa.hashCode());
 		result = prime * result + ((nome == null) ? 0 : nome.hashCode());
@@ -63,6 +74,11 @@ public class Pessoa {
 		if (getClass() != obj.getClass())
 			return false;
 		Pessoa other = (Pessoa) obj;
+		if (ativo == null) {
+			if (other.ativo != null)
+				return false;
+		} else if (!ativo.equals(other.ativo))
+			return false;
 		if (codigo == null) {
 			if (other.codigo != null)
 				return false;
@@ -80,6 +96,4 @@ public class Pessoa {
 			return false;
 		return true;
 	}
-	
-	
 }
