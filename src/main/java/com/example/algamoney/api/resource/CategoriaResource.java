@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -58,10 +59,11 @@ public class CategoriaResource {
 	 * Método que incluí no banco uma nova categoria e devolve na reposta endereço do recurso e o objeto em questão
 	 * @RequestBody --> Converte automaticamente pro objeto Categoria
 	 * @ResponseStatus --> Indica o código http de retorno que enviaremos
+	 * @Valid --> O objeto deve ser validado pelo bean validation
 	 */
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public ResponseEntity<Categoria> criar(@RequestBody Categoria categoria, HttpServletResponse response) {
+	public ResponseEntity<Categoria> criar(@Valid @RequestBody Categoria categoria, HttpServletResponse response) {
 		Categoria categoriaSalva = categoriaRepository.save(categoria);
 		
 		/* Por meio da requisição atual construa a localização do recurso recém criado */
