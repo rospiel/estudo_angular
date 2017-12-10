@@ -1,12 +1,12 @@
 package com.example.algamoney.api.resource;
 
-import java.net.URI;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,8 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
+import com.example.algamoney.api.event.RecursoCriadoEvent;
 import com.example.algamoney.api.model.Categoria;
 import com.example.algamoney.api.repository.CategoriaRepository;
 
@@ -36,6 +35,9 @@ public class CategoriaResource {
 	
 	@Autowired
 	private CategoriaRepository categoriaRepository;
+	
+	@Autowired
+	private ApplicationEventPublisher publicarEvento;
 	
 	/*
 	 * Retorna a lista de categorias 
@@ -56,7 +58,7 @@ public class CategoriaResource {
 	 * @param categoria
 	 * @param response
 	 * 
-	 * Método que incluí no banco uma nova categoria e devolve na reposta endereço do recurso e o objeto em questão
+	 * Método que incluí no banco uma nova categoria e devolve na resposta endereço do recurso e o objeto em questão
 	 * @RequestBody --> Converte automaticamente pro objeto Categoria
 	 * @ResponseStatus --> Indica o código http de retorno que enviaremos
 	 * @Valid --> O objeto deve ser validado pelo bean validation
@@ -66,14 +68,10 @@ public class CategoriaResource {
 	public ResponseEntity<Categoria> criar(@Valid @RequestBody Categoria categoria, HttpServletResponse response) {
 		Categoria categoriaSalva = categoriaRepository.save(categoria);
 		
-		/* Por meio da requisição atual construa a localização do recurso recém criado */
-		URI endereco = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{codigo}").buildAndExpand(categoriaSalva.getCodigo()).toUri();
+		/* publicando o evento afim de que a localização do recurso recém criado seja disponibilizado no location do header */
+		publicarEvento.publishEvent(new RecursoCriadoEvent(this, response, categoriaSalva.getCodigo()));
 		
-		/* Cadastrando na resposta a localização do recurso */
-		response.setHeader("Location", endereco.toASCIIString());
-		
-		/* Devolvendo o json do recurso recém criado */
-		return ResponseEntity.created(endereco).body(categoriaSalva);
+		return ResponseEntity.status(HttpStatus.CREATED).body(categoriaSalva);
 	}
 	
 	/**
