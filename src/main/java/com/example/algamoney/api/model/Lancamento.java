@@ -35,6 +35,7 @@ public class Lancamento {
 	private String observacao;
 	
 	@Enumerated(EnumType.STRING)
+	@Column(name = "tipo")
 	private TipoLancamento tipoLancamento;
 
 	@ManyToOne

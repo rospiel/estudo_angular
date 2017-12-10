@@ -44,9 +44,9 @@ public class PessoaResource {
 	@Autowired
 	private PessoaService pessoaService;
 	
-	/*
+	/**
 	 * Retorna a lista de pessoas 
-	*/
+	 */
 	@GetMapping
 	public List<Pessoa> listar() {
 		List<Pessoa> pessoas = pessoaRepository.findAll();
