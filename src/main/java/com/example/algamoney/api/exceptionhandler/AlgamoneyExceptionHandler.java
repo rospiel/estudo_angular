@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -50,6 +53,23 @@ public class AlgamoneyExceptionHandler extends ResponseEntityExceptionHandler {
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException erro, HttpHeaders headers, HttpStatus status, WebRequest request) {
 		List<Erro> erros = criarListaDeErros(erro.getBindingResult());
 		return handleExceptionInternal(erro, erros, headers, HttpStatus.BAD_REQUEST, request);
+	}
+	
+	/**
+	 * Método que captura exceção lançada quando tentamos remover um recurso que não existe e devolve 404
+	 * @ExceptionHandler --> Para as exceções não disponibilizadas pelo ResponseEntityExceptionHandler informamos nossa 
+	 * implementação sem sobrescrever
+	 * @param erro
+	 * @param request
+	 * @return
+	 */
+	@ExceptionHandler({EmptyResultDataAccessException.class})
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public ResponseEntity<Object> handleEmptyResultDataAccessException(EmptyResultDataAccessException erro, WebRequest request) {
+		String mensagem = mensagensCadastradas.getMessage("recurso.nao-encontrado", null, LocaleContextHolder.getLocale());
+		String mensagemDesenvolvedor = erro.toString();
+		List<Erro> erros = Arrays.asList(new Erro(mensagem, mensagemDesenvolvedor));
+		return handleExceptionInternal(erro, erros, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
 	}
 	
 	/**
