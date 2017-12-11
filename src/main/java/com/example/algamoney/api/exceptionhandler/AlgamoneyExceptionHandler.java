@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -70,6 +72,21 @@ public class AlgamoneyExceptionHandler extends ResponseEntityExceptionHandler {
 		String mensagemDesenvolvedor = erro.toString();
 		List<Erro> erros = Arrays.asList(new Erro(mensagem, mensagemDesenvolvedor));
 		return handleExceptionInternal(erro, erros, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+	}
+	
+	/**
+	 * Método que captura exceções do banco quanto a chave violada
+	 * ExceptionUtils --> Se faz necessário para transmissão de uma mensagem mais transparente ao desenvolvedor
+	 * @param erro
+	 * @param request
+	 * @return
+	 */
+	@ExceptionHandler({ DataIntegrityViolationException.class })
+	public ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException erro, WebRequest request) {
+		String mensagem = mensagensCadastradas.getMessage("recurso.operacao-nao-permitida", null, LocaleContextHolder.getLocale());
+		String mensagemDesenvolvedor = ExceptionUtils.getRootCauseMessage(erro);
+		List<Erro> erros = Arrays.asList(new Erro(mensagem, mensagemDesenvolvedor));
+		return handleExceptionInternal(erro, erros, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
 	}
 	
 	/**
