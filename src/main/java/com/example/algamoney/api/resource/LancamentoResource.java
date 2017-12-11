@@ -1,13 +1,17 @@
 package com.example.algamoney.api.resource;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,10 +19,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.example.algamoney.api.exceptionhandler.AlgamoneyExceptionHandler.Erro;
 import com.example.algamoney.api.model.Lancamento;
 import com.example.algamoney.api.repository.LancamentoRepository;
 import com.example.algamoney.api.service.LancamentoService;
+import com.example.algamoney.api.service.exception.PessoaInexistenteOuInativaException;
 
 /**
  * 
@@ -37,6 +42,9 @@ public class LancamentoResource {
 	
 	@Autowired
 	private LancamentoService lancamentoService;
+	
+	@Autowired
+	private MessageSource mensagensCadastradas;
 	
 	/**
 	 * Retorna a lista de lancamentos 
@@ -75,5 +83,21 @@ public class LancamentoResource {
 		Lancamento lancamentoSalvo = lancamentoService.criar(lancamento, response);
 		
 		return ResponseEntity.status(HttpStatus.CREATED).body(lancamentoSalvo);
+	}
+	
+	/**
+	 * 
+	 * @param erro
+	 * @return
+	 * 
+	 * Método que captura a excessão de negócio quanto a não existência de pessoa ou inatividade da mesma
+	 */
+	@ExceptionHandler({ PessoaInexistenteOuInativaException.class })
+	public ResponseEntity<Object> handlePessoaInexistenteOuInativaException(PessoaInexistenteOuInativaException erro) {
+		String mensagem = mensagensCadastradas.getMessage("pessoa.inexistente-ou-inativa", null, LocaleContextHolder.getLocale());
+		String mensagemDesenvolvedor = erro.toString();
+		List<Erro> erros = Arrays.asList(new Erro(mensagem, mensagemDesenvolvedor));
+		
+		return ResponseEntity.badRequest().body(erros);
 	}
 }
