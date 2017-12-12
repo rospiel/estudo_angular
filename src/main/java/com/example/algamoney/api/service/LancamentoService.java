@@ -52,4 +52,14 @@ public class LancamentoService {
 		
 		return lancamentoSalvo;
 	}
+	
+	/**
+	 * 
+	 * @param codigo
+	 * 
+	 * Tem a ação de remover uma pessoa 
+	 */
+	public void excluir(Long codigo) {
+		lancamentoRepository.delete(codigo);
+	}
 }
