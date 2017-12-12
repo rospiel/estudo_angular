@@ -9,6 +9,8 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -50,10 +52,12 @@ public class LancamentoResource {
 	
 	/**
 	 * Retorna a lista de lancamentos 
+	 * Pageable --> Trabalhando com paginação
+	 * 
 	 */
 	@GetMapping
-	public List<Lancamento> pesquisar(LancamentoFilter lancamentoFilter) {
-		List<Lancamento> lancamentos = lancamentoRepository.filtrar(lancamentoFilter);
+	public Page<Lancamento> pesquisar(LancamentoFilter lancamentoFilter, Pageable pageable) {
+		Page<Lancamento> lancamentos = lancamentoRepository.filtrar(lancamentoFilter, pageable);
 		
 		return lancamentos;
 	}

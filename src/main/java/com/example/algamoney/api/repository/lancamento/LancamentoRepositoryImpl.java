@@ -11,6 +11,9 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
 
 import com.example.algamoney.api.model.Lancamento;
@@ -33,7 +36,7 @@ public class LancamentoRepositoryImpl implements LancamentoRepositoryQuery {
 	 * Cria a consulta por filtros 
 	 */
 	@Override
-	public List<Lancamento> filtrar(LancamentoFilter lancamentoFilter) {
+	public Page<Lancamento> filtrar(LancamentoFilter lancamentoFilter, Pageable pageable) {
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
 		
 		/* Criteria por meio do model que será retornado */
@@ -48,10 +51,50 @@ public class LancamentoRepositoryImpl implements LancamentoRepositoryQuery {
 		criteria.where(predicates);
 		
 		TypedQuery<Lancamento> query = manager.createQuery(criteria);
+		adicionarRestricoesDePaginacao(query, pageable);
 		
-		return query.getResultList();
+		return new PageImpl<>(query.getResultList(), pageable, total(lancamentoFilter));
+	}
+	/**
+	 * 
+	 * @param lancamentoFilter
+	 * @return
+	 * Efetua a consulta pra obtenção do count da qtde de registros afim de conduzir a paginação
+	 * 
+	 */
+	private Long total(LancamentoFilter lancamentoFilter) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Long> criteria = builder.createQuery(Long.class);
+		Root<Lancamento> root = criteria.from(Lancamento.class);
+		
+		Predicate[] predicates = criarRestricoes(lancamentoFilter, builder, root);
+		criteria.where(predicates);
+		
+		criteria.select(builder.count(root));
+		
+		return manager.createQuery(criteria).getSingleResult();
 	}
 	
+	/**
+	 * 
+	 * @param query
+	 * @param pageable
+	 * Método responsável por configurar o primeiro registro da consulta e a qtde máxima de registros pro retorno
+	 * 
+	 */
+	private void adicionarRestricoesDePaginacao(TypedQuery<Lancamento> query, Pageable pageable) {
+		int paginaAtual = pageable.getPageNumber();
+		int totalRegistrosPorPagina = pageable.getPageSize();
+		
+		/* 0 x 3 = 0 
+		 * 1 x 3 = 3
+		 * 2 x 3 = 6 */
+		int primeiroRegistroDaPagina = paginaAtual * totalRegistrosPorPagina;
+		
+		query.setFirstResult(primeiroRegistroDaPagina);
+		query.setMaxResults(totalRegistrosPorPagina);
+	}
+
 	/*
 	 * Configura as condições do where, usando metamodel afim de que não seja necessário digitar os nomes das colunas
 	 */
