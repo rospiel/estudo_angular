@@ -37,9 +37,11 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 		       /* O que será permitido */
 		       .scopes("read", "write")
 		       /* Como será o método de acesso do usuário */
-		       .authorizedGrantTypes("password")
+		       .authorizedGrantTypes("password", "refresh_token")
 		       /* Tempo de validade do servidor */
-		       .accessTokenValiditySeconds(1800);
+		       .accessTokenValiditySeconds(20)
+		       /* Tempo de expiração do token de acesso para atualização do token de uso dos recursos */
+		       .refreshTokenValiditySeconds(3600 * 24);
 	}
 	
 	/**
@@ -51,6 +53,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
 		endpoints.tokenStore(tokenStore())
 				 .accessTokenConverter(accessTokenConverter())
+				 /* Aplicação não deve reutilizar tokens quando for solicitado refresh */
+				 .reuseRefreshTokens(false)
 		         .authenticationManager(administraAutenticacao);
 	}
 	
