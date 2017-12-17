@@ -39,7 +39,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 		       /* Como será o método de acesso do usuário */
 		       .authorizedGrantTypes("password", "refresh_token")
 		       /* Tempo de validade do servidor */
-		       .accessTokenValiditySeconds(20)
+		       .accessTokenValiditySeconds(1800)
 		       /* Tempo de expiração do token de acesso para atualização do token de uso dos recursos */
 		       .refreshTokenValiditySeconds(3600 * 24);
 	}
