@@ -27,6 +27,7 @@ import com.example.algamoney.api.exceptionhandler.AlgamoneyExceptionHandler.Erro
 import com.example.algamoney.api.model.Lancamento;
 import com.example.algamoney.api.repository.LancamentoRepository;
 import com.example.algamoney.api.repository.filter.LancamentoFilter;
+import com.example.algamoney.api.repository.projection.ResumoLancamento;
 import com.example.algamoney.api.service.LancamentoService;
 import com.example.algamoney.api.service.exception.PessoaInexistenteOuInativaException;
 
@@ -60,6 +61,19 @@ public class LancamentoResource {
 	@PreAuthorize("hasAuthority('ROLE_PESQUISAR_LANCAMENTO') and #oauth2.hasScope('read')")
 	public Page<Lancamento> pesquisar(LancamentoFilter lancamentoFilter, Pageable pageable) {
 		Page<Lancamento> lancamentos = lancamentoRepository.filtrar(lancamentoFilter, pageable);
+		
+		return lancamentos;
+	}
+	
+	/**
+	 * Retorna a lista de lancamentos com seus atributos resumidos
+	 * Pageable --> Trabalhando com paginação
+	 * 
+	 */
+	@GetMapping(params = "resumo")
+	@PreAuthorize("hasAuthority('ROLE_PESQUISAR_LANCAMENTO') and #oauth2.hasScope('read')")
+	public Page<ResumoLancamento> resumir(LancamentoFilter lancamentoFilter, Pageable pageable) {
+		Page<ResumoLancamento> lancamentos = lancamentoRepository.resumir(lancamentoFilter, pageable);
 		
 		return lancamentos;
 	}
