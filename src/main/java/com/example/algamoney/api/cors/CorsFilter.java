@@ -11,9 +11,12 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+
+import com.example.algamoney.api.config.properties.AlgamoneyApiProperty;
 
 /**
  * Filtro de configuração do cors, informamos qual domínio externo terá acesso a api 
@@ -25,7 +28,8 @@ import org.springframework.stereotype.Component;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class CorsFilter implements Filter {
 	
-	private String originPermitida = "";
+	@Autowired
+	private AlgamoneyApiProperty algamoneyApiProperty;
 	
 	/**
 	 * Verifica se houve chamada do método OPTIONS padrão do navegador se afirmativo verifica se esta 
@@ -37,11 +41,11 @@ public class CorsFilter implements Filter {
 		HttpServletResponse resp = (HttpServletResponse) response;
 		
 		/* Setando a origem autorizada */
-		resp.setHeader("Access-Control-Allow-Origin", originPermitida);
+		resp.setHeader("Access-Control-Allow-Origin", algamoneyApiProperty.getOriginPermitida());
 		/* Confirmando a necessidade de credenciais */
 		resp.setHeader("Access-Control-Allow-Credentials", "true");
 		
-		if("OPTIONS".equals(req.getMethod()) && originPermitida.equals(req.getHeader("Origin"))) {
+		if("OPTIONS".equals(req.getMethod()) && algamoneyApiProperty.getOriginPermitida().equals(req.getHeader("Origin"))) {
 			
 			/* Methods liberados */
 			resp.setHeader("Access-Control-Allow-Methods", "POST, GET, DELETE, PUT, OPTIONS");

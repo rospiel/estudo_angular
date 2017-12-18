@@ -99,6 +99,12 @@
     		<artifactId>spring-security-jwt</artifactId>
 		</dependency>
 		
+		<!-- Necessário para usar profiles -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
 	</dependencies>
 
 	<build>
