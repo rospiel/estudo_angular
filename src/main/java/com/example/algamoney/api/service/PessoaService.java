@@ -3,10 +3,12 @@ package com.example.algamoney.api.service;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import com.example.algamoney.api.model.Pessoa;
 import com.example.algamoney.api.repository.PessoaRepository;
+import com.example.algamoney.api.repository.filter.PessoaFilter;
 
 /**
  * Classe responsável pelas tratativas de service do model Pessoa
@@ -64,5 +66,23 @@ public class PessoaService {
 			throw new EmptyResultDataAccessException(1);
 		}
 		return pessoaBanco;
+	}
+	
+	/**
+	 * 
+	 * @param pessoaFilter
+	 * @param pageable
+	 * @return
+	 * 
+	 * Busca a pessoa conforme nome informado no filtro
+	 */
+	public Page<Pessoa> filtrar(PessoaFilter pessoaFilter, Pageable pageable) {
+		StringBuilder nome = new StringBuilder("%");
+		nome.append(pessoaFilter.getNome());
+		nome.append("%");
+		
+		Page<Pessoa> pessoas = pessoaRepository.filtrar(nome.toString(), pageable);
+		
+		return pessoas;
 	}
 }

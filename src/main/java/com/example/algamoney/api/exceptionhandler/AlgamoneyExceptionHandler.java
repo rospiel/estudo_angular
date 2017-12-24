@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -53,6 +54,15 @@ public class AlgamoneyExceptionHandler extends ResponseEntityExceptionHandler {
 	 */
 	@Override
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException erro, HttpHeaders headers, HttpStatus status, WebRequest request) {
+		List<Erro> erros = criarListaDeErros(erro.getBindingResult());
+		return handleExceptionInternal(erro, erros, headers, HttpStatus.BAD_REQUEST, request);
+	}
+	
+	/**
+	 * Método que captura exceções lançadas por intermédio do hibernate validation 
+	 */
+	@Override
+	protected ResponseEntity<Object> handleBindException(BindException erro, HttpHeaders headers, HttpStatus status, WebRequest request) {
 		List<Erro> erros = criarListaDeErros(erro.getBindingResult());
 		return handleExceptionInternal(erro, erros, headers, HttpStatus.BAD_REQUEST, request);
 	}
