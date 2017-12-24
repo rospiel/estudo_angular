@@ -2,15 +2,19 @@ package com.example.algamoney.api.service;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import com.example.algamoney.api.event.RecursoCriadoEvent;
+import com.example.algamoney.api.model.Categoria;
 import com.example.algamoney.api.model.Lancamento;
 import com.example.algamoney.api.model.Pessoa;
 import com.example.algamoney.api.repository.LancamentoRepository;
 import com.example.algamoney.api.repository.PessoaRepository;
+import com.example.algamoney.api.repository.filter.LancamentoAtualizarFilter;
 import com.example.algamoney.api.service.exception.PessoaInexistenteOuInativaException;
 
 /**
@@ -30,6 +34,9 @@ public class LancamentoService {
 	@Autowired
 	private PessoaRepository pessoaRepository;
 	
+	@Autowired
+	private CategoriaService categoriaService;
+	
 	/**
 	 * 
 	 * @param lancamento
@@ -40,11 +47,7 @@ public class LancamentoService {
 	 * do contrário lança uma exceção
 	 */
 	public Lancamento criar(Lancamento lancamento, HttpServletResponse response) {
-		Pessoa pessoaBanco = pessoaRepository.findOne(lancamento.getPessoa().getCodigo());
-		
-		if(pessoaBanco == null || pessoaBanco.isInativo()) {
-			throw new PessoaInexistenteOuInativaException();
-		}
+		verificarPessoaDoLancamento(lancamento);
 		
 		Lancamento lancamentoSalvo = lancamentoRepository.save(lancamento);
 		
@@ -52,7 +55,44 @@ public class LancamentoService {
 		
 		return lancamentoSalvo;
 	}
+
 	
+	/**
+	 * 
+	 * @param codigo
+	 * @param lancamento
+	 * @return
+	 * 
+	 * Atualiza o lancamento
+	 * 
+	 */
+	public Lancamento atualizar(Long codigo, LancamentoAtualizarFilter lancamento) {
+		Pessoa pessoaBanco = verificarPessoaDoLancamento(lancamento);
+		Categoria categoriaBanco = verificarCategoriaDoLancamento(lancamento);
+		Lancamento lancamentoBanco = buscarLancamentoPeloCodigo(codigo);
+		BeanUtils.copyProperties(lancamento, lancamentoBanco, "codigo");
+		lancamentoBanco.setCategoria(categoriaBanco);
+		lancamentoBanco.setPessoa(pessoaBanco);
+		return lancamentoRepository.save(lancamentoBanco);
+	}
+	
+	/**
+	 * 
+	 * @param codigo
+	 * @return
+	 * 
+	 * Busca o lancamento pelo codigo caso não encontre lança exceção de resultado vazio
+	 */
+	public Lancamento buscarLancamentoPeloCodigo(Long codigo) {
+		Lancamento lancamentoBanco = lancamentoRepository.findOne(codigo);
+		
+		if(lancamentoBanco == null) {
+			throw new EmptyResultDataAccessException(1);
+		}
+		
+		return lancamentoBanco;
+	}
+
 	/**
 	 * 
 	 * @param codigo
@@ -62,4 +102,50 @@ public class LancamentoService {
 	public void excluir(Long codigo) {
 		lancamentoRepository.delete(codigo);
 	}
+	
+	/**
+	 * 
+	 * @param lancamento
+	 * 
+	 * Verifica a pessoa atrelado ao lancamento antes de salvar ou atualizar o mesmo
+	 * Caso não encontre na base ou encontre pessoa inativa lança uma exceção
+	 */
+	private Pessoa verificarPessoaDoLancamento(LancamentoAtualizarFilter lancamento) {
+		Pessoa pessoaBanco = pessoaRepository.findOne(lancamento.getPessoa().getCodigo());
+		
+		if(pessoaBanco == null || pessoaBanco.isInativo()) {
+			throw new PessoaInexistenteOuInativaException();
+		}
+		
+		return pessoaBanco;
+	}
+	
+	/**
+	 * 
+	 * @param lancamento
+	 * 
+	 * Verifica a pessoa atrelado ao lancamento antes de salvar ou atualizar o mesmo
+	 * Caso não encontre na base ou encontre pessoa inativa lança uma exceção
+	 */
+	private Pessoa verificarPessoaDoLancamento(Lancamento lancamento) {
+		Pessoa pessoaBanco = pessoaRepository.findOne(lancamento.getPessoa().getCodigo());
+		
+		if(pessoaBanco == null || pessoaBanco.isInativo()) {
+			throw new PessoaInexistenteOuInativaException();
+		}
+		
+		return pessoaBanco;
+	}
+	
+	/**
+	 * 
+	 * @param lancamento
+	 * 
+	 * Verifica a categoria atrelada ao lancamento antes de salvar ou atualizar o mesmo
+	 * Caso não encontre na base a categoria lança uma exceção
+	 */
+	private Categoria verificarCategoriaDoLancamento(LancamentoAtualizarFilter lancamento) {
+		return categoriaService.buscarCategoriaPeloCodigo(lancamento.getCategoria().getCodigo()); 
+	}
+	
 }
