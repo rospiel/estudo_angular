@@ -1,6 +1,5 @@
 package com.example.algamoney.api.resource;
 
-import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -51,8 +50,8 @@ public class PessoaResource {
 	 * Retorna a lista de pessoas 
 	 */
 	@GetMapping
-	public List<Pessoa> listar() {
-		List<Pessoa> pessoas = pessoaRepository.findAll();
+	public Page<Pessoa> listar(Pageable pageable) {
+		Page<Pessoa> pessoas = pessoaRepository.findAll(pageable);
 		
 		return pessoas;
 	}
@@ -82,7 +81,7 @@ public class PessoaResource {
 	 */
 	@GetMapping("/filtro")
 	@PreAuthorize("hasAuthority('ROLE_PESQUISAR_PESSOA') and #oauth2.hasScope('read') ")
-	public Page<Pessoa> pesquisarPorNome(@Valid PessoaFilter pessoaFilter, Pageable pageable) {
+	public Page<Pessoa> pesquisarPorNome(PessoaFilter pessoaFilter, Pageable pageable) {
 		Page<Pessoa> pessoas = pessoaService.filtrar(pessoaFilter, pageable);
 		
 		return pessoas;

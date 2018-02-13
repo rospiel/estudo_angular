@@ -1,7 +1,5 @@
 package com.example.algamoney.api.repository.filter;
 
-import org.hibernate.validator.constraints.NotBlank;
-
 /**
  * Classe de filtro do model pessoa
  * @author Rodrigo
@@ -9,7 +7,6 @@ import org.hibernate.validator.constraints.NotBlank;
  */
 public class PessoaFilter {
 	
-	@NotBlank
 	private String nome;
 
 	public String getNome() {
