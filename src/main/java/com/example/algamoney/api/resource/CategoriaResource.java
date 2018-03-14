@@ -50,7 +50,7 @@ public class CategoriaResource {
 	@GetMapping
 	@PreAuthorize("hasAuthority('ROLE_PESQUISAR_CATEGORIA') and #oauth2.hasScope('read')")
 	public List<Categoria> listar() {
-		List<Categoria> categorias = categoriaRepository.findAll();
+		List<Categoria> categorias = categoriaRepository.findAllByOrderByNomeAsc();
 		
 		/* return categorias.isEmpty() != true ? ResponseEntity.ok(categorias) : ResponseEntity.notFound().build(); 404 recurso não identificado */
 		/* return categorias.isEmpty() != true ? ResponseEntity.ok(categorias) : ResponseEntity.noContent().build(); 204 busquei mas não tenho o que te mostrar */
