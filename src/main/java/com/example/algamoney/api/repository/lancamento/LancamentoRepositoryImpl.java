@@ -1,5 +1,6 @@
 package com.example.algamoney.api.repository.lancamento;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
 
+import com.example.algamoney.api.dto.LancamentoEstatisticaCategoria;
+import com.example.algamoney.api.dto.LancamentoEstatisticaDia;
 import com.example.algamoney.api.model.Categoria_;
 import com.example.algamoney.api.model.Lancamento;
 import com.example.algamoney.api.model.Lancamento_;
@@ -148,5 +151,59 @@ public class LancamentoRepositoryImpl implements LancamentoRepositoryQuery {
 		}
 		
 		return predicates.toArray(new Predicate[predicates.size()]);
+	}
+	/*
+	 * Retorna a soma total dado o mês informado agrupando por categoria
+	 */
+	public List<LancamentoEstatisticaCategoria> porCategoria(LocalDate mesReferencia) {
+		CriteriaBuilder criteriaBuilder = manager.getCriteriaBuilder();
+		
+		CriteriaQuery<LancamentoEstatisticaCategoria> criteriaQuery = criteriaBuilder.createQuery(LancamentoEstatisticaCategoria.class);
+		
+		Root<Lancamento> entidade = criteriaQuery.from(Lancamento.class);
+		
+		criteriaQuery.select(criteriaBuilder.construct(LancamentoEstatisticaCategoria.class, 
+				entidade.get(Lancamento_.categoria), 
+				criteriaBuilder.sum(entidade.get(Lancamento_.valor))));
+		
+		LocalDate primeiroDia = mesReferencia.withDayOfMonth(1);
+		LocalDate ultimoDia = mesReferencia.withDayOfMonth(mesReferencia.lengthOfMonth());
+		
+		criteriaQuery.where(
+				criteriaBuilder.greaterThanOrEqualTo(entidade.get(Lancamento_.dataVencimento), primeiroDia),
+				criteriaBuilder.lessThanOrEqualTo(entidade.get(Lancamento_.dataVencimento), ultimoDia));
+		
+		criteriaQuery.groupBy(entidade.get(Lancamento_.categoria));
+		
+		TypedQuery<LancamentoEstatisticaCategoria> tipoRetorno = manager.createQuery(criteriaQuery);
+		return tipoRetorno.getResultList();
+	}
+	
+	/*
+	 * Retorna a soma total por dia do mês informado agrupando por tipo de lançamento e data
+	 */
+	public List<LancamentoEstatisticaDia> porDia(LocalDate mesReferencia) {
+		CriteriaBuilder criteriaBuilder = manager.getCriteriaBuilder();
+		
+		CriteriaQuery<LancamentoEstatisticaDia> criteriaQuery = criteriaBuilder.createQuery(LancamentoEstatisticaDia.class);
+		
+		Root<Lancamento> entidade = criteriaQuery.from(Lancamento.class);
+		
+		criteriaQuery.select(criteriaBuilder.construct(LancamentoEstatisticaDia.class, 
+				entidade.get(Lancamento_.tipoLancamento), 
+				entidade.get(Lancamento_.dataVencimento),
+				criteriaBuilder.sum(entidade.get(Lancamento_.valor))));
+		
+		LocalDate primeiroDia = mesReferencia.withDayOfMonth(1);
+		LocalDate ultimoDia = mesReferencia.withDayOfMonth(mesReferencia.lengthOfMonth());
+		
+		criteriaQuery.where(
+				criteriaBuilder.greaterThanOrEqualTo(entidade.get(Lancamento_.dataVencimento), primeiroDia),
+				criteriaBuilder.lessThanOrEqualTo(entidade.get(Lancamento_.dataVencimento), ultimoDia));
+		
+		criteriaQuery.groupBy(entidade.get(Lancamento_.tipoLancamento), entidade.get(Lancamento_.dataVencimento));
+		
+		TypedQuery<LancamentoEstatisticaDia> tipoRetorno = manager.createQuery(criteriaQuery);
+		return tipoRetorno.getResultList();
 	}
 }
