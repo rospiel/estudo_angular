@@ -1,5 +1,13 @@
 package com.example.algamoney.api.service;
 
+import java.io.InputStream;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.BeanUtils;
@@ -8,6 +16,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import com.example.algamoney.api.dto.LancamentoEstatisticaPessoa;
 import com.example.algamoney.api.event.RecursoCriadoEvent;
 import com.example.algamoney.api.model.Categoria;
 import com.example.algamoney.api.model.Lancamento;
@@ -16,6 +25,12 @@ import com.example.algamoney.api.repository.LancamentoRepository;
 import com.example.algamoney.api.repository.PessoaRepository;
 import com.example.algamoney.api.repository.filter.LancamentoAtualizarFilter;
 import com.example.algamoney.api.service.exception.PessoaInexistenteOuInativaException;
+
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 
 /**
  * Classe responsável pelas tratativas de service do model Lancamento
@@ -146,6 +161,30 @@ public class LancamentoService {
 	 */
 	private Categoria verificarCategoriaDoLancamento(LancamentoAtualizarFilter lancamento) {
 		return categoriaService.buscarCategoriaPeloCodigo(lancamento.getCategoria().getCodigo()); 
+	}
+	
+	/**
+	 * 
+	 * @param dtInicio
+	 * @param dtFim
+	 * 
+	 * Efetua a consulta dos totais por pessoa, faz uso do template em jasper convertendo em bytes 
+	 * @return
+	 * @throws JRException
+	 */
+	public byte[] relatorioPorPessoa(LocalDate dtInicio, LocalDate dtFim) throws JRException {
+		List<LancamentoEstatisticaPessoa> dados = lancamentoRepository.porPessoa(dtInicio, dtFim);
+		
+		Map<String, Object> parametros = new HashMap<String, Object>();
+		parametros.put("DT_INICIO", Date.valueOf(dtInicio));
+		parametros.put("DT_FIM", Date.valueOf(dtFim));
+		parametros.put("REPORT_LOCALE", new Locale("pt", "BR"));
+		
+		InputStream inputStream = this.getClass().getResourceAsStream("/relatorios/lancamentos-por-pessoa.jasper");
+		
+		JasperPrint jasperPrint = JasperFillManager.fillReport(inputStream, parametros, new JRBeanCollectionDataSource(dados));
+		
+		return JasperExportManager.exportReportToPdf(jasperPrint);
 	}
 	
 }

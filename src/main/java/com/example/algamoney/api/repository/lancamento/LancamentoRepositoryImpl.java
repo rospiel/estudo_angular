@@ -19,6 +19,7 @@ import org.springframework.util.StringUtils;
 
 import com.example.algamoney.api.dto.LancamentoEstatisticaCategoria;
 import com.example.algamoney.api.dto.LancamentoEstatisticaDia;
+import com.example.algamoney.api.dto.LancamentoEstatisticaPessoa;
 import com.example.algamoney.api.model.Categoria_;
 import com.example.algamoney.api.model.Lancamento;
 import com.example.algamoney.api.model.Lancamento_;
@@ -204,6 +205,31 @@ public class LancamentoRepositoryImpl implements LancamentoRepositoryQuery {
 		criteriaQuery.groupBy(entidade.get(Lancamento_.tipoLancamento), entidade.get(Lancamento_.dataVencimento));
 		
 		TypedQuery<LancamentoEstatisticaDia> tipoRetorno = manager.createQuery(criteriaQuery);
+		return tipoRetorno.getResultList();
+	}
+	
+	/*
+	 * Retorna a soma total conforme range de datas e pessoa agrupando por tipo de lançamento e pessoa
+	 */
+	public List<LancamentoEstatisticaPessoa> porPessoa(LocalDate dtInicio, LocalDate dtFim) {
+		CriteriaBuilder criteriaBuilder = manager.getCriteriaBuilder();
+		
+		CriteriaQuery<LancamentoEstatisticaPessoa> criteriaQuery = criteriaBuilder.createQuery(LancamentoEstatisticaPessoa.class);
+		
+		Root<Lancamento> entidade = criteriaQuery.from(Lancamento.class);
+		
+		criteriaQuery.select(criteriaBuilder.construct(LancamentoEstatisticaPessoa.class, 
+				entidade.get(Lancamento_.tipoLancamento), 
+				entidade.get(Lancamento_.pessoa),
+				criteriaBuilder.sum(entidade.get(Lancamento_.valor))));
+		
+		criteriaQuery.where(
+				criteriaBuilder.greaterThanOrEqualTo(entidade.get(Lancamento_.dataVencimento), dtInicio),
+				criteriaBuilder.lessThanOrEqualTo(entidade.get(Lancamento_.dataVencimento), dtFim));
+		
+		criteriaQuery.groupBy(entidade.get(Lancamento_.tipoLancamento), entidade.get(Lancamento_.pessoa));
+		
+		TypedQuery<LancamentoEstatisticaPessoa> tipoRetorno = manager.createQuery(criteriaQuery);
 		return tipoRetorno.getResultList();
 	}
 }

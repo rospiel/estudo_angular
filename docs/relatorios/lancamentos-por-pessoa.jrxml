@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="lancamentos-por-pessoa" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="66c9945a-6811-4e52-9ff3-330aaa6ae310">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<parameter name="DT_INICIO" class="java.util.Date"/>
+	<parameter name="DT_FIM" class="java.util.Date"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="total" class="java.math.BigDecimal"/>
+	<field name="tipoLancamento" class="com.example.algamoney.api.model.TipoLancamento"/>
+	<field name="pessoa" class="com.example.algamoney.api.model.Pessoa"/>
+	<title>
+		<band height="62" splitType="Stretch">
+			<textField>
+				<reportElement x="10" y="16" width="534" height="30" uuid="7bac0f35-5bed-4484-899e-1ab0ed5787ee"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="20"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Lançamentos por pessoa de " + DATEFORMAT($P{DT_INICIO}, "dd/MM/yyyy") + " até " +DATEFORMAT($P{DT_FIM}, "dd/MM/yyyy")]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="25" splitType="Stretch">
+			<rectangle>
+				<reportElement x="0" y="0" width="555" height="25" backcolor="#D4D4D4" uuid="4d6c40b3-c7aa-4bde-8043-2bd4bb4d2eb4"/>
+			</rectangle>
+			<line>
+				<reportElement x="80" y="0" width="1" height="25" uuid="c613ec51-c058-40ca-a734-d1959bddea67"/>
+			</line>
+			<line>
+				<reportElement x="480" y="0" width="1" height="25" uuid="f5853179-427f-419f-a688-d67b028d2cdd"/>
+			</line>
+			<staticText>
+				<reportElement x="1" y="1" width="79" height="23" uuid="3030631a-074f-4aea-946c-6cd9c6fb1f4a"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Tipo]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="83" y="0" width="398" height="25" uuid="26cab22c-d0ee-49e4-b861-ecef0bd05801"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Pessoa]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="480" y="0" width="75" height="25" uuid="f260e88a-70c1-4c70-a508-a5320a8fd57a"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="25" splitType="Stretch">
+			<line>
+				<reportElement x="0" y="0" width="1" height="25" uuid="045c12e1-5a96-4d07-be47-dab800536ce4"/>
+			</line>
+			<line>
+				<reportElement x="80" y="0" width="1" height="25" uuid="21fc16fe-c9a8-408d-89e3-f7183c4af3b8"/>
+			</line>
+			<line>
+				<reportElement x="480" y="0" width="1" height="25" uuid="5d8c6363-359c-40b7-a46c-0a5e3cffc870"/>
+			</line>
+			<line>
+				<reportElement x="554" y="0" width="1" height="25" uuid="13f9daec-947b-4cad-b067-0bcca832f052"/>
+			</line>
+			<line>
+				<reportElement x="0" y="24" width="555" height="1" uuid="3a57e36a-023f-4292-a38a-bcab3c425af4"/>
+			</line>
+			<textField>
+				<reportElement x="5" y="1" width="68" height="23" uuid="f05d4a5e-7a42-434b-bf26-852a468f1cf9"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{tipoLancamento}.getDescricao()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="90" y="0" width="380" height="24" uuid="1d30bf5a-4d81-444c-8b0d-816a8c2d2e1a"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{pessoa}.getNome()]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤#,##0.00;¤-#,##0.00">
+				<reportElement x="481" y="0" width="68" height="24" uuid="9faa3a81-a060-4495-b4d5-dcf4f8c0c179"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{total}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="30" splitType="Stretch">
+			<textField>
+				<reportElement x="1" y="0" width="140" height="25" uuid="ede7aada-86e3-45a7-97aa-be1670a0479a"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA["Data " + DATEFORMAT(TODAY(), "dd/MM/yyyy")]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="430" y="0" width="125" height="30" uuid="8bbb7531-156b-4f19-9255-86eaca08543f"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}.toString()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>
