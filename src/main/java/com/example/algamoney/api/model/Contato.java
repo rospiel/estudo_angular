@@ -30,7 +30,7 @@ public class Contato {
 	@NotNull
 	private String telefone;
 
-	@NotNull
+	/* @NotNull  --> removido para evitar recursividade na conversão pra json */
 	@ManyToOne
 	@JoinColumn(name = "codigo_pessoa")
 	private Pessoa pessoa;

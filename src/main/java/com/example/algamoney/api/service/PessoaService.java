@@ -21,6 +21,12 @@ public class PessoaService {
 	@Autowired
 	private PessoaRepository pessoaRepository;
 	
+	public Pessoa salvar(Pessoa pessoa) {
+		/* Trabalhando com contatos manualmente para evitar recursividade na conversão pra json */
+		pessoa.getContatos().forEach(c -> c.setPessoa(pessoa)); /* --> Devido o jsonIgnore, resolve recursividade */
+		return pessoaRepository.save(pessoa);
+	}
+	
 	/**
 	 * 
 	 * @param codigo
@@ -33,8 +39,12 @@ public class PessoaService {
 	 */
 	public Pessoa atualizar(Long codigo, Pessoa pessoa) {
 		Pessoa pessoaBanco = buscarPessoaPeloCodigo(codigo);
+		 /* Trabalhando com contatos manualmente para evitar recursividade na conversão pra json */
+		pessoaBanco.getContatos().clear();
+		pessoaBanco.getContatos().addAll(pessoa.getContatos());
+		pessoaBanco.getContatos().forEach(c -> c.setPessoa(pessoaBanco));
 		
-		BeanUtils.copyProperties(pessoa, pessoaBanco, "codigo");
+		BeanUtils.copyProperties(pessoa, pessoaBanco, "codigo", "contatos");
 		return pessoaRepository.save(pessoaBanco);
 	}
 	
