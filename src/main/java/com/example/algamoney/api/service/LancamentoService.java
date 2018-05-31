@@ -14,15 +14,19 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.example.algamoney.api.dto.LancamentoEstatisticaPessoa;
 import com.example.algamoney.api.event.RecursoCriadoEvent;
+import com.example.algamoney.api.mail.Mailer;
 import com.example.algamoney.api.model.Categoria;
 import com.example.algamoney.api.model.Lancamento;
 import com.example.algamoney.api.model.Pessoa;
+import com.example.algamoney.api.model.Usuario;
 import com.example.algamoney.api.repository.LancamentoRepository;
 import com.example.algamoney.api.repository.PessoaRepository;
+import com.example.algamoney.api.repository.UsuarioRepository;
 import com.example.algamoney.api.repository.filter.LancamentoAtualizarFilter;
 import com.example.algamoney.api.service.exception.PessoaInexistenteOuInativaException;
 
@@ -51,6 +55,14 @@ public class LancamentoService {
 	
 	@Autowired
 	private CategoriaService categoriaService;
+	
+	@Autowired
+	private UsuarioRepository usuarioRepository;
+	
+	@Autowired
+	private Mailer mailer;
+	
+	private static final String DESTINATARIOS =  "ROLE_PESQUISAR_LANCAMENTO";
 	
 	/**
 	 * 
@@ -186,5 +198,17 @@ public class LancamentoService {
 		
 		return JasperExportManager.exportReportToPdf(jasperPrint);
 	}
+	
+	/**
+	 * Agendamento de tarefa com a consulta dos destinatarios e lançamentos vencidos
+	 */
+	/* @Scheduled(fixedDelay = 1000 * 60 * 30) */
+	/* @Scheduled(cron = "0 0 6 * * *") 
+	public void avisarSobreLancamentosVencidos() {
+		List<Lancamento> vencidos = lancamentoRepository.findByDataVencimentoLessThanEqualAndDataPagamentoIsNull(LocalDate.now());
+		List<Usuario> destinatarios = usuarioRepository.findByPermissoesDescricao(DESTINATARIOS);
+		
+		mailer.avisarSobreLancamentosVencidos(vencidos, destinatarios);
+	}*/
 	
 }
