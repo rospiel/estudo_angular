@@ -1,34 +1,45 @@
 package com.example.algamoney.api.model;
 
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "pessoa")
 public class Pessoa {
-	
+
 	@Id
-	@GeneratedValue(strategy =  GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long codigo;
-	
+
 	@NotNull
 	@Size(min = 5, max = 140)
 	private String nome;
-	
+
 	@NotNull
 	private Boolean ativo;
-	
+
 	@Embedded
 	private Endereco enderecoPessoa;
+	
+	@JsonIgnoreProperties("pessoa")
+	@Valid
+	@OneToMany(mappedBy = "pessoa", cascade = CascadeType.ALL)
+	private List<Contato> contatos;
 
 	public Long getCodigo() {
 		return codigo;
@@ -53,7 +64,7 @@ public class Pessoa {
 	public void setEnderecoPessoa(Endereco enderecoPessoa) {
 		this.enderecoPessoa = enderecoPessoa;
 	}
-	
+
 	public Boolean getAtivo() {
 		return ativo;
 	}
@@ -61,7 +72,15 @@ public class Pessoa {
 	public void setAtivo(Boolean ativo) {
 		this.ativo = ativo;
 	}
-	
+
+	public List<Contato> getContatos() {
+		return contatos;
+	}
+
+	public void setContatos(List<Contato> contatos) {
+		this.contatos = contatos;
+	}
+
 	@JsonIgnore
 	@Transient
 	public boolean isInativo() {
